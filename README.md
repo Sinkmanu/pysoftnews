@@ -43,13 +43,13 @@ BeautifulSoup = 4.4.0
 Hacking
 -------
 
-The target is create a good tool with more possible software. 
+The target is create a good tool with more possible software. <br />
 If you want to add more software is too easy edit this script, but, please, if You update this script do a **pull request** to this project.
 
 Author
 ------
 
-For the moment:
-Manuel Mancera (sinkmanu@gmail.com/[@sinkmanu](https://twitter.com/sinkmanu))
-
+For the moment:<br />
+Manuel Mancera (sinkmanu@gmail.com/[@sinkmanu](https://twitter.com/sinkmanu))<br />
+<br />
 Be free to add your name if you contribute with it.
