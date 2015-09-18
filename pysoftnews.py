@@ -60,6 +60,9 @@ data = [("Apache", apache_url), ("PHP", php_url), ("Nginx", nginx_url),
     ("Postgresql", postgresql_url)]
 
 
+data_output = []
+
+
 class Software:
     def __init__(self, name, url):
         self.name = name
@@ -186,15 +189,26 @@ def opciones():
             parser.print_help()
         elif (options.all):
             if (options.output is not None):
-                printXML(options.output)
+                # Save all soft in output list
+                for i in data:
+                    software_aux = Software(i[0], i[1])
+                    software_aux.getData()
+                    data_output.append(software_aux)
+                printXML(data_output, options.output)
             else:
                 printAll()
         elif (options.name is not None):
-            if (len(options.name.split(",")) > 0):
-                for name in options.name.split(","):
-                    printNormal(name.strip())
+            if (options.output is not None):
+                if (len(options.name.split(",")) > 0):
+                    for name in options.name.split(","):
+                        addList(name.strip())
+                        printXML(data_output, options.output)
             else:
-                printNormal(options.name)
+                if (len(options.name.split(",")) > 0):
+                    for name in options.name.split(","):
+                        printNormal(name.strip())
+                else:
+                    printNormal(options.name)
 
 
 def getURL(name2find):
@@ -220,6 +234,18 @@ def printNormal(name2find):
         print("[-] Name %s Not found." % name2find)
 
 
+def addList(name2find):
+    '''Add data info to the global list'''
+    try:
+        (name, url) = getURL(name2find)
+        if url is not None:
+            software = Software(name, url)
+            software.getData()
+            data_output.append(software)
+    except TypeError:
+        pass
+
+
 def printJSON(filename):
     '''TODO'''
     return None
@@ -233,77 +259,9 @@ def printAll():
         print(software)
 
 
-def printXML(filename):
-    '''Save the output in a XML file. All software'''
-    lista = []
-    apache = Software('Apache', apache_url)
-    apache.getData()
-    lista.append(apache)
-    php = Software('PHP', php_url)
-    php.getData()
-    lista.append(php)
-    nginx = Software('Nginx', nginx_url)
-    nginx.getData()
-    lista.append(nginx)
-    tomcat = Software('Tomcat', tomcat_url)
-    tomcat.getData()
-    lista.append(tomcat)
-    wordpress = Software('Wordpress', wordpress_url)
-    wordpress.getData()
-    lista.append(wordpress)
-    drupal = Software('Drupal', drupal_url)
-    drupal.getData()
-    lista.append(drupal)
-    proftpd = Software('ProFTPD', proftpd_url)
-    proftpd.getData()
-    lista.append(proftpd)
-    openssl = Software('OpenSSL', openssl_url)
-    openssl.getData()
-    lista.append(openssl)
-    moodle = Software('Moodle', moodle_url)
-    moodle.getData()
-    lista.append(moodle)
-    django = Software('Django', django_url)
-    django.getData()
-    lista.append(django)
-    phpmyadmin = Software('PHPMyAdmin', phpmyadmin_url)
-    phpmyadmin.getData()
-    lista.append(phpmyadmin)
-    primefaces = Software('PrimeFaces', primefaces_url)
-    primefaces.getData()
-    lista.append(primefaces)
-    postgresql = Software('Postgresql', postgresql_url)
-    postgresql.getData()
-    lista.append(postgresql)
-    mysql = Software('MySQL', mysql_url)
-    mysql.getData()
-    lista.append(mysql)
-    mariadb = Software('MariaDB', mariadb_url)
-    mariadb.getData()
-    lista.append(mariadb)
-    mongodb = Software('MongoDB', mongodb_url)
-    mongodb.getData()
-    lista.append(mongodb)
-    elasticsearch = Software('elasticsearch', elasticsearch_url)
-    elasticsearch.getData()
-    lista.append(elasticsearch)
-    openssh = Software('OpenSSH', openssh_url)
-    openssh.getData()
-    lista.append(openssh)
-    mediawiki = Software('MediaWiki', mediawiki_url)
-    mediawiki.getData()
-    lista.append(mediawiki)
-    openvas = Software('OpenVAS', openvas_url)
-    openvas.getData()
-    lista.append(openvas)
-    zaproxy = Software('Zaproxy', zaproxy_url)
-    zaproxy.getData()
-    lista.append(zaproxy)
-    rubyonrails = Software('Ruby on rails', rubyonrails_url)
-    rubyonrails.getData()
-    lista.append(rubyonrails)
-
-    orderList = sorted(lista, key=lambda software: datetime.datetime.strptime(software.date,"%d-%m-%Y"), reverse=True)
+def printXML(data_output, filename):
+    '''Create a XML file with the output'''
+    orderList = sorted(data_output, key=lambda software: datetime.datetime.strptime(software.date,"%d-%m-%Y"), reverse=True)
 
     # Create XML
     root = ET.Element("news")
