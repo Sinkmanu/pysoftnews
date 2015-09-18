@@ -62,6 +62,8 @@ data = [("Apache", apache_url), ("PHP", php_url), ("Nginx", nginx_url),
 
 data_output = []
 
+#FORMAT
+XML = "xml"
 
 class Software:
     def __init__(self, name, url):
@@ -180,6 +182,8 @@ def opciones():
         # TODO: Añadir parametros (-F --format xml,json,csv,...
         parser.add_option("-A", "--all",
                   action="store_true", dest="all", help="All software")
+        parser.add_option("-f", "--format",
+                  action="store", type="string", dest="format", help="Output format")
         parser.add_option("-o", "--output",
                   action="store", type="string", dest="output", help="Filename output")
         parser.add_option("-n", "--name",
@@ -189,20 +193,28 @@ def opciones():
             parser.print_help()
         elif (options.all):
             if (options.output is not None):
-                # Save all soft in output list
-                for i in data:
-                    software_aux = Software(i[0], i[1])
-                    software_aux.getData()
-                    data_output.append(software_aux)
-                printXML(data_output, options.output)
+                if (options.format is not None):
+                    # Save all soft in output list
+                    for i in data:
+                        software_aux = Software(i[0], i[1])
+                        software_aux.getData()
+                        data_output.append(software_aux)
+                    if (options.format == XML):
+                        printXML(data_output, options.output)
+                    # TODO: Add more formats!
+                else:
+                    print("[-] Fail: need format output (e.g -f xml)")
             else:
                 printAll()
         elif (options.name is not None):
             if (options.output is not None):
-                if (len(options.name.split(",")) > 0):
+                if (options.format is not None):
                     for name in options.name.split(","):
                         addList(name.strip())
+                    if (options.format == XML):
                         printXML(data_output, options.output)
+                else:
+                    print("[-] Fail: need format output (e.g -f xml)")
             else:
                 if (len(options.name.split(",")) > 0):
                     for name in options.name.split(","):
