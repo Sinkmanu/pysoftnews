@@ -21,10 +21,12 @@ import bleach
 
 # Add more URLs!
 
-user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0'
+user_agent = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0' }
+
+
 apache_url = 'http://httpd.apache.org'
 php_url = 'http://php.net'
-joomla_url = 'http://www.joomla.org'
+joomla_url = 'https://www.joomla.org/announcements/release-news'
 nginx_url = 'http://nginx.org/'
 openssl_url = 'https://www.openssl.org/news/newslog.html'
 tomcat_url = 'http://tomcat.apache.org/'
@@ -57,7 +59,7 @@ data = [("Apache", apache_url), ("PHP", php_url), ("Nginx", nginx_url),
     ("MySQL", mysql_url), ("MariaDB", mariadb_url), ("OpenSSH", openssh_url),
     ("MediaWiki", mediawiki_url), ("Zaproxy", zaproxy_url), ("OpenVAS", openvas_url),
     ("Ruby on rails", rubyonrails_url), ("MongoDB", mongodb_url),
-    ("Postgresql", postgresql_url)]
+    ("Postgresql", postgresql_url), ("Joomla", joomla_url)]
 
 
 data_output = []
@@ -91,7 +93,7 @@ class Software:
     def getData(self):
         try:
             requests.packages.urllib3.disable_warnings()
-            r = requests.get(self.url, verify=False)
+            r = requests.get(self.url, verify=False, headers = user_agent)
             soup = BeautifulSoup(r.text, "html5lib")
         except requests.InsecureRequestWarning:
             pass
@@ -105,7 +107,6 @@ class Software:
         elif (self.name == 'Drupal'):
             self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find_all('div',attrs={'class':'content'})[2].a.text
-            #self.news = "<h1>bimba</h1>"
         elif (self.name == 'Nginx'):
             self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
             self.news = soup.find_all('td')[1].text.replace('\n',' ')
@@ -165,6 +166,9 @@ class Software:
         elif (self.name == 'Ruby on rails'):
             self.date = datetime.datetime.strptime(soup.find_all('span',attrs={'class':'published'})[0].get('title'),"%Y-%m-%d %X +0000").strftime("%d-%m-%Y")
             self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
+        elif (self.name == "Joomla"):
+            self.date = datetime.datetime.strptime(soup.find_all('time',attrs={'itemprop':'dateCreated'})[0].get('datetime').split('T')[0],'%Y-%m-%d').strftime("%d-%m-%Y")
+            self.news = soup.find_all('h2',attrs={'itemprop':'name'})[0].a.text.strip()
         else:
             self.date = None
             self.news = None
@@ -178,7 +182,7 @@ class Software:
 
 
 def opciones():
-        parser = OptionParser("usage: %prog [options] \nExample: ./softNews.py -o filename")
+        parser = OptionParser("usage: %prog [options] \nExample: ./%prog -n drupal,django")
         # TODO: Añadir parametros (-F --format xml,json,csv,...
         parser.add_option("-A", "--all",
                   action="store_true", dest="all", help="All software")

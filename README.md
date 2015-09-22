@@ -15,20 +15,22 @@ Usage
 
 
 ```
-	[manu@Golgota ~/GitHub/pysoftnews]$ ./pysoftnews.py --help
-	Usage: pysoftnews.py [options] 
-	Example: ./softNews.py -o filename
+		[manu@Golgota ~/GitHub/pysoftnews]$ ./pysoftnews.py --help
+		Usage: pysoftnews.py [options] 
+		Example: ./pysoftnews.py -n drupal,django
 
-	Options:
-	  -h, --help            show this help message and exit
-	  -A, --all             All software
-	  -o OUTPUT, --output=OUTPUT
-	                        Filename output
-	  -n NAME, --name=NAME  Software name(s)
+		Options:
+		  -h, --help            show this help message and exit
+		  -A, --all             All software
+		  -f FORMAT, --format=FORMAT
+		                        Output format
+		  -o OUTPUT, --output=OUTPUT
+		                        Filename output
+		  -n NAME, --name=NAME  Software name(s)
 
 ```
 
-Requeriments
+Requirements
 ------------
 
 I think that the version is not mandatory
