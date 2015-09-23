@@ -135,7 +135,11 @@ class Software:
             self.date = str(datetime.datetime.strptime(soup.find_all('span',attrs={'class':'entry-date'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y"))
             self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
         elif (self.name == 'Postgresql'):
-            self.date =  datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
+	    date_month =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(" ")[2]
+	    if (date_month == 'Sept.'):
+            	self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(".")[1]," %d, %Y").replace(month = 9).strftime("%d-%m-%Y")
+	    else:
+ 		self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
             self.news =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('h2')[0].text.strip()
         elif (self.name == 'MySQL'):
             self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'page'}).find_all('p')[0].span.text,"%d %B %Y").strftime("%d-%m-%Y")
@@ -183,7 +187,9 @@ class Software:
 
 def opciones():
         parser = OptionParser("usage: %prog [options] \nExample: ./%prog -n drupal,django")
-        # TODO: Añadir parametros (-F --format xml,json,csv,...
+        # TODO: parametros -F --format xml,json,csv,...
+        parser.add_option("-v", "--verbose",
+                  action="store_true", dest="verbose", help="Verbose")
         parser.add_option("-A", "--all",
                   action="store_true", dest="all", help="All software")
         parser.add_option("-f", "--format",
@@ -200,6 +206,8 @@ def opciones():
                 if (options.format is not None):
                     # Save all soft in output list
                     for i in data:
+			if (options.verbose):
+				print("[/] %s" % i[0])
                         software_aux = Software(i[0], i[1])
                         software_aux.getData()
                         data_output.append(software_aux)
