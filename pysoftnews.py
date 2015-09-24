@@ -41,7 +41,7 @@ primefaces_url = 'http://blog.primefaces.org/'
 postgresql_url = 'http://www.postgresql.org/about/newsarchive/'
 mysql_url = 'http://www.mysql.com/news-and-events/'
 mariadb_url = 'https://mariadb.org/'
-mongodb_url = 'https://www.mongodb.com/news'
+mongodb_url = 'https://www.mongodb.com/press'
 elasticsearch_url = 'https://www.elastic.co/blog'
 openssh_url = 'http://www.openssh.com/security.html'
 mediawiki_url = 'https://www.mediawiki.org/wiki/News'
@@ -51,6 +51,10 @@ rubyonrails_url = 'http://weblog.rubyonrails.org/'
 
 # Security Advisories
 vmware_url_security = 'https://www.vmware.com/security/advisories'
+drupal_url_security = 'https://www.drupal.org/security'
+
+# Literals
+news = "news"
 
 
 # Format of the data array ("string with the software name", var (with url), "type")
@@ -69,7 +73,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("Zaproxy", zaproxy_url, "news"), ("OpenVAS", openvas_url, "news"),
     ("Ruby on rails", rubyonrails_url, "news"), ("MongoDB", mongodb_url, "news"),
     ("Postgresql", postgresql_url, "news"), ("Joomla", joomla_url, "news"),
-    ("VMWare", vmware_url_security, "security")]
+    ("VMWare", vmware_url_security, "security"),
+    ("Drupal", drupal_url_security, "security")]
 
 
 data_output = []
@@ -163,8 +168,8 @@ class Software:
             self.date = datetime.datetime.strptime(soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].small.text.strip(),"%d %b %Y").strftime("%d-%m-%Y")
             self.news = soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].a.text.strip()
         elif (self.name == 'MongoDB'):
-            self.date = datetime.datetime.strptime(soup.find_all('table',attrs={'class':'table table-hover'})[0].find_all('tr')[1].td.text,"%b %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('table',attrs={'class':'table table-hover'})[0].find_all('tr')[1].a.text.strip()
+            self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'press-item-date'})[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all('div',attrs={'class':'press-item'})[0].a.text.strip()
         elif (self.name == 'elasticsearch'):
             self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].span.text,"%B %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].a.text.split("-")[0]
@@ -261,26 +266,33 @@ def opciones():
             else:
                 if (len(options.name.split(",")) > 0):
                     for name in options.name.split(","):
-                        printNormal(name.strip())
+                        printNormal(name.strip(), options.type)
                 else:
-                    printNormal(options.name)
+                    printNormal(options.name, options.type)
         else:
             print("[-] Fail: All or name parameter")
 
 
-def getURL(name2find):
+def getURL(name2find, type_news=news):
     try:
-        (name, url, type_news) = data[[x[0].upper() for x in data].index(name2find.upper())]
-        return (name, url, type_news)
+        if type_news is None:
+            type_news = news
+        software = None
+        for x in data:
+            name = x[0].upper()
+            type_n = x[2].upper()
+            if (name == name2find.upper()) and (type_news.upper() == type_n.upper()):
+                software = x
+        return software
     except ValueError:
         return None
     except TypeError:
         return None
 
 
-def printNormal(name2find):
+def printNormal(name2find, type_news=news):
     try:
-        (name, url, type_news) = getURL(name2find)
+        (name, url, type_news) = getURL(name2find, type_news)
         if url is not None:
             software = Software(name, url, type_news)
             software.getData()

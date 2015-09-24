@@ -15,19 +15,20 @@ Usage
 
 
 ```
-		[manu@Golgota ~/GitHub/pysoftnews]$ ./pysoftnews.py --help
-		Usage: pysoftnews.py [options] 
-		Example: ./pysoftnews.py -n drupal,django
+$ ./pysoftnews.py 
+Usage: pysoftnews.py [options] 
+Example: ./pysoftnews.py -n drupal,django
 
-		Options:
-		  -h, --help            show this help message and exit
-		  -A, --all             All software
-		  -f FORMAT, --format=FORMAT
-		                        Output format
-		  -o OUTPUT, --output=OUTPUT
-		                        Filename output
-		  -n NAME, --name=NAME  Software name(s)
-
+Options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Verbose
+  -A, --all             All software
+  -t TYPE, --type=TYPE  News type (news, security)
+  -f FORMAT, --format=FORMAT
+                        Output format
+  -o OUTPUT, --output=OUTPUT
+                        Filename output
+  -n NAME, --name=NAME  Software name(s)
 ```
 
 Requirements
@@ -39,7 +40,6 @@ I think that the version is not mandatory
 requests >= 2.6.2
 bleach >= 1.4.1
 BeautifulSoup = 4.4.0
-
 ```
 
 Hacking
