@@ -49,17 +49,27 @@ openvas_url = 'http://www.openvas.org/news.html'
 zaproxy_url = 'https://www.owasp.org/index.php/Projects/OWASP_Zed_Attack_Proxy_Project/Pages/News'
 rubyonrails_url = 'http://weblog.rubyonrails.org/'
 
+# Security Advisories
+vmware_url_security = 'https://www.vmware.com/security/advisories'
+
+
+# Format of the data array ("string with the software name", var (with url), "type")
+# Where type is news, security, ...
 
 # Add more!!
 
-data = [("Apache", apache_url), ("PHP", php_url), ("Nginx", nginx_url),
-    ("OpenSSL", openssl_url), ("Tomcat", tomcat_url), ("Wordpress", wordpress_url),
-    ("Drupal", drupal_url), ("Django", django_url), ("PHPMyAdmin", phpmyadmin_url),
-    ("PrimeFaces", primefaces_url), ("ProFTPD", proftpd_url), ("Moodle", moodle_url),
-    ("MySQL", mysql_url), ("MariaDB", mariadb_url), ("OpenSSH", openssh_url),
-    ("MediaWiki", mediawiki_url), ("Zaproxy", zaproxy_url), ("OpenVAS", openvas_url),
-    ("Ruby on rails", rubyonrails_url), ("MongoDB", mongodb_url),
-    ("Postgresql", postgresql_url), ("Joomla", joomla_url)]
+data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
+    ("Nginx", nginx_url, "news"), ("OpenSSL", openssl_url, "news"),
+    ("Tomcat", tomcat_url, "news"), ("Wordpress", wordpress_url, "news"),
+    ("Drupal", drupal_url, "news"), ("Django", django_url, "news"),
+    ("PHPMyAdmin", phpmyadmin_url, "news"), ("PrimeFaces", primefaces_url, "news"),
+    ("ProFTPD", proftpd_url, "news"), ("Moodle", moodle_url, "news"),
+    ("MySQL", mysql_url, "news"), ("MariaDB", mariadb_url, "news"),
+    ("OpenSSH", openssh_url, "news"), ("MediaWiki", mediawiki_url, "news"),
+    ("Zaproxy", zaproxy_url, "news"), ("OpenVAS", openvas_url, "news"),
+    ("Ruby on rails", rubyonrails_url, "news"), ("MongoDB", mongodb_url, "news"),
+    ("Postgresql", postgresql_url, "news"), ("Joomla", joomla_url, "news"),
+    ("VMWare", vmware_url_security, "security")]
 
 
 data_output = []
@@ -68,11 +78,12 @@ data_output = []
 XML = "xml"
 
 class Software:
-    def __init__(self, name, url):
+    def __init__(self, name, url, type_news):
         self.name = name
         self.news = ""
         self.url = url
         self.date = ""
+        self.type = type_news
 
     def getName(self):
         ''' Return the sanitized name'''
@@ -89,6 +100,10 @@ class Software:
     def getDate(self):
         ''' Return the date'''
         return bleach.clean(self.date)
+
+    def getType(self):
+        ''' Return the news type'''
+        return self.type
 
     def getData(self):
         try:
@@ -135,11 +150,11 @@ class Software:
             self.date = str(datetime.datetime.strptime(soup.find_all('span',attrs={'class':'entry-date'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y"))
             self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
         elif (self.name == 'Postgresql'):
-	    date_month =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(" ")[2]
-	    if (date_month == 'Sept.'):
-            	self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(".")[1]," %d, %Y").replace(month = 9).strftime("%d-%m-%Y")
-	    else:
- 		self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
+            date_month =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(" ")[2]
+            if (date_month == 'Sept.'):
+                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(".")[1]," %d, %Y").replace(month = 9).strftime("%d-%m-%Y")
+            else:
+                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
             self.news =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('h2')[0].text.strip()
         elif (self.name == 'MySQL'):
             self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'page'}).find_all('p')[0].span.text,"%d %B %Y").strftime("%d-%m-%Y")
@@ -173,6 +188,9 @@ class Software:
         elif (self.name == "Joomla"):
             self.date = datetime.datetime.strptime(soup.find_all('time',attrs={'itemprop':'dateCreated'})[0].get('datetime').split('T')[0],'%Y-%m-%d').strftime("%d-%m-%Y")
             self.news = soup.find_all('h2',attrs={'itemprop':'name'})[0].a.text.strip()
+        elif (self.name == "VMWare"):
+            self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all('p', attrs={'class':'mr-b10 c-body'})[0].text.strip()
         else:
             self.date = None
             self.news = None
@@ -188,10 +206,13 @@ class Software:
 def opciones():
         parser = OptionParser("usage: %prog [options] \nExample: ./%prog -n drupal,django")
         # TODO: parametros -F --format xml,json,csv,...
+        # TODO: Add parameter to filter by a date range
         parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", help="Verbose")
         parser.add_option("-A", "--all",
                   action="store_true", dest="all", help="All software")
+        parser.add_option("-t", "--type",
+                  action="store", type="string", dest="type", help="News type (news, security)")
         parser.add_option("-f", "--format",
                   action="store", type="string", dest="format", help="Output format")
         parser.add_option("-o", "--output",
@@ -206,18 +227,28 @@ def opciones():
                 if (options.format is not None):
                     # Save all soft in output list
                     for i in data:
-			if (options.verbose):
-				print("[/] %s" % i[0])
-                        software_aux = Software(i[0], i[1])
-                        software_aux.getData()
-                        data_output.append(software_aux)
+                        if (options.verbose):
+                            print("[/] %s" % i[0])
+                        # check news type (news or security)
+                        if (options.type == 'security') and (i[2] == "security"):
+                            software_aux = Software(i[0], i[1], i[2])
+                            software_aux.getData()
+                            data_output.append(software_aux)
+                        elif (options.type == "news") and (i[2] == "news"):
+                            software_aux = Software(i[0], i[1], i[2])
+                            software_aux.getData()
+                            data_output.append(software_aux)
+                        elif (options.type is None):
+                            software_aux = Software(i[0], i[1], i[2])
+                            software_aux.getData()
+                            data_output.append(software_aux)
                     if (options.format == XML):
                         printXML(data_output, options.output)
                     # TODO: Add more formats!
                 else:
                     print("[-] Fail: need format output (e.g -f xml)")
             else:
-                printAll()
+                    printAll(type_news=options.type)
         elif (options.name is not None):
             if (options.output is not None):
                 if (options.format is not None):
@@ -233,12 +264,14 @@ def opciones():
                         printNormal(name.strip())
                 else:
                     printNormal(options.name)
+        else:
+            print("[-] Fail: All or name parameter")
 
 
 def getURL(name2find):
     try:
-        (name, url) = data[[x[0].upper() for x in data].index(name2find.upper())]
-        return (name, url)
+        (name, url, type_news) = data[[x[0].upper() for x in data].index(name2find.upper())]
+        return (name, url, type_news)
     except ValueError:
         return None
     except TypeError:
@@ -247,9 +280,9 @@ def getURL(name2find):
 
 def printNormal(name2find):
     try:
-        (name, url) = getURL(name2find)
+        (name, url, type_news) = getURL(name2find)
         if url is not None:
-            software = Software(name, url)
+            software = Software(name, url, type_news)
             software.getData()
             print(software)
         else:
@@ -261,9 +294,9 @@ def printNormal(name2find):
 def addList(name2find):
     '''Add data info to the global list'''
     try:
-        (name, url) = getURL(name2find)
+        (name, url, type_news) = getURL(name2find)
         if url is not None:
-            software = Software(name, url)
+            software = Software(name, url, type_news)
             software.getData()
             data_output.append(software)
     except TypeError:
@@ -275,12 +308,21 @@ def printJSON(filename):
     return None
 
 
-def printAll():
+def printAll(type_news):
     '''Print all list'''
     for i in data:
-        software = Software(i[0], i[1])
-        software.getData()
-        print(software)
+        if (type_news == "security") and (i[2] == "security"):
+            software = Software(i[0], i[1], i[2])
+            software.getData()
+            print(software)
+        elif (type_news == "news") and (i[2] == "news"):
+            software = Software(i[0], i[1], i[2])
+            software.getData()
+            print(software)
+        elif (type_news is None):
+            software = Software(i[0], i[1], i[2])
+            software.getData()
+            print(software)
 
 
 def printXML(data_output, filename):
