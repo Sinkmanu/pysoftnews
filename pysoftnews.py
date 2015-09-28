@@ -52,6 +52,7 @@ rubyonrails_url = 'http://weblog.rubyonrails.org/'
 # Security Advisories
 vmware_url_security = 'https://www.vmware.com/security/advisories'
 drupal_url_security = 'https://www.drupal.org/security'
+squid_url_security = 'http://www.squid-cache.org/Advisories/'
 
 # Literals
 news = "news"
@@ -74,7 +75,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("Ruby on rails", rubyonrails_url, "news"), ("MongoDB", mongodb_url, "news"),
     ("Postgresql", postgresql_url, "news"), ("Joomla", joomla_url, "news"),
     ("VMWare", vmware_url_security, "security"),
-    ("Drupal", drupal_url_security, "security")]
+    ("Drupal", drupal_url_security, "security"),
+    ("Squid", squid_url_security, "security")]
 
 
 data_output = []
@@ -119,8 +121,8 @@ class Software:
             pass
 
         if (self.name == 'Apache'):
-            self.date = datetime.datetime.strptime(soup.find_all('div')[2].find_all('h1')[1].span.text,"%Y-%m-%d").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div')[2].find_all('h1')[1].text.replace(soup.find_all('div')[2].find_all('h1')[1].span.text,'')
+            self.date = datetime.datetime.strptime(soup.find_all('div')[2].find_all('h1')[1].span.text,"%Y-%m-%d").strftime("%d-%m-%Y").encode('utf-8')
+            self.news = soup.find_all('div')[2].find_all('h1')[1].text.replace(soup.find_all('div')[2].find_all('h1')[1].span.text,"").encode('utf-8')
         elif (self.name == 'Tomcat'):
             self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text,"%Y-%m-%d").strftime("%d-%m-%Y")
             self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','')
@@ -196,6 +198,9 @@ class Software:
         elif (self.name == "VMWare"):
             self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find_all('p', attrs={'class':'mr-b10 c-body'})[0].text.strip()
+        elif (self.name == "Squid"):
+        	self.date = datetime.datetime.strptime(" ".join(soup.find_all("dt")[0].text.split(",")[1:]), " %b %d  %Y").strftime("%d-%m-%Y")
+        	self.news = soup.find_all("dd")[0].text.strip()
         else:
             self.date = None
             self.news = None
