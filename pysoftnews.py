@@ -5,7 +5,7 @@
 #
 # Usage: ./pysoftnews [Options]
 #
-# Last update: 17/09/2015
+# Last update: 30/09/2015
 #
 #############################################################
 
@@ -54,6 +54,7 @@ arachni_url = 'http://www.arachni-scanner.com/blog/'
 vmware_url_security = 'https://www.vmware.com/security/advisories'
 drupal_url_security = 'https://www.drupal.org/security'
 squid_url_security = 'http://www.squid-cache.org/Advisories/'
+joomla_url_security = 'http://developer.joomla.org/security-centre.html'
 
 # Literals
 news = "news"
@@ -78,7 +79,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("VMWare", vmware_url_security, "security"),
     ("Drupal", drupal_url_security, "security"),
     ("Squid", squid_url_security, "security"),
-    ("Arachni", arachni_url, "news")]
+    ("Arachni", arachni_url, "news"),
+    ("Joomla", joomla_url_security, "security")]
 
 
 data_output = []
@@ -195,17 +197,21 @@ class Software:
             self.date = datetime.datetime.strptime(soup.find_all('span',attrs={'class':'published'})[0].get('title'),"%Y-%m-%d %X +0000").strftime("%d-%m-%Y")
             self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
         elif (self.name == "Joomla"):
-            self.date = datetime.datetime.strptime(soup.find_all('time',attrs={'itemprop':'dateCreated'})[0].get('datetime').split('T')[0],'%Y-%m-%d').strftime("%d-%m-%Y")
-            self.news = soup.find_all('h2',attrs={'itemprop':'name'})[0].a.text.strip()
+            if (self.type == 'security'):
+                self.date = datetime.datetime.strptime(soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().split('-')[0],"[%Y%m%d] ").strftime("%d-%m-%Y")
+                self.news = soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip()[soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().index('-')+2:]
+            else:
+                self.date = datetime.datetime.strptime(soup.find_all('time',attrs={'itemprop':'dateCreated'})[0].get('datetime').split('T')[0],'%Y-%m-%d').strftime("%d-%m-%Y")
+                self.news = soup.find_all('h2',attrs={'itemprop':'name'})[0].a.text.strip()
         elif (self.name == "VMWare"):
             self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find_all('p', attrs={'class':'mr-b10 c-body'})[0].text.strip()
         elif (self.name == "Squid"):
-        	self.date = datetime.datetime.strptime(" ".join(soup.find_all("dt")[0].text.split(",")[1:]), " %b %d  %Y").strftime("%d-%m-%Y")
-        	self.news = soup.find_all("dd")[0].text.strip()
+            self.date = datetime.datetime.strptime(" ".join(soup.find_all("dt")[0].text.split(",")[1:]), " %b %d  %Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all("dd")[0].text.strip()
         elif (self.name == "Arachni"):
-        	self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
-        	self.news = soup.find_all('a', attrs={'rel':'bookmark'})[0].text
+            self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all('a', attrs={'rel':'bookmark'})[0].text
         else:
             self.date = None
             self.news = None
