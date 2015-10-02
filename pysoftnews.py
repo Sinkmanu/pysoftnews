@@ -5,8 +5,6 @@
 #
 # Usage: ./pysoftnews [Options]
 #
-# Last update: 30/09/2015
-#
 #############################################################
 
 import sys
@@ -55,6 +53,7 @@ vmware_url_security = 'https://www.vmware.com/security/advisories'
 drupal_url_security = 'https://www.drupal.org/security'
 squid_url_security = 'http://www.squid-cache.org/Advisories/'
 joomla_url_security = 'http://developer.joomla.org/security-centre.html'
+cisco_url_security = 'http://tools.cisco.com/security/center/publicationListing.x'
 
 # Literals
 news = "news"
@@ -80,7 +79,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("Drupal", drupal_url_security, "security"),
     ("Squid", squid_url_security, "security"),
     ("Arachni", arachni_url, "news"),
-    ("Joomla", joomla_url_security, "security")]
+    ("Joomla", joomla_url_security, "security"),
+    ("Cisco", cisco_url_security, "security")]
 
 
 data_output = []
@@ -119,16 +119,16 @@ class Software:
     def getData(self):
         try:
             requests.packages.urllib3.disable_warnings()
-            r = requests.get(self.url, verify=False, headers = user_agent)
+            r = requests.get(self.url, verify=False, headers=user_agent)
             soup = BeautifulSoup(r.text, "html5lib")
         except requests.InsecureRequestWarning:
             pass
 
         if (self.name == 'Apache'):
-            self.date = datetime.datetime.strptime(soup.find_all('div')[2].find_all('h1')[1].span.text,"%Y-%m-%d").strftime("%d-%m-%Y").encode('utf-8')
-            self.news = soup.find_all('div')[2].find_all('h1')[1].text.replace(soup.find_all('div')[2].find_all('h1')[1].span.text,"").encode('utf-8')
+            self.date = datetime.datetime.strptime(soup.find_all('div')[2].find_all('h1')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y").encode('utf-8')
+            self.news = soup.find_all('div')[2].find_all('h1')[1].text.replace(soup.find_all('div')[2].find_all('h1')[1].span.text, "").encode('utf-8')
         elif (self.name == 'Tomcat'):
-            self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text,"%Y-%m-%d").strftime("%d-%m-%Y")
+            self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y")
             self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','')
         elif (self.name == 'Drupal'):
             self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
@@ -212,6 +212,9 @@ class Software:
         elif (self.name == "Arachni"):
             self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find_all('a', attrs={'rel':'bookmark'})[0].text
+        elif (self.name == "Cisco"):
+            self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %B %d ").strftime("%d-%m-%Y")
+            self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
         else:
             self.date = None
             self.news = None
