@@ -213,7 +213,7 @@ class Software:
             self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find_all('a', attrs={'rel':'bookmark'})[0].text
         elif (self.name == "Cisco"):
-            self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %B %d ").strftime("%d-%m-%Y")
+            self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %b %d ").strftime("%d-%m-%Y")
             self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
         else:
             self.date = None
