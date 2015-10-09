@@ -54,6 +54,7 @@ drupal_url_security = 'https://www.drupal.org/security'
 squid_url_security = 'http://www.squid-cache.org/Advisories/'
 joomla_url_security = 'http://developer.joomla.org/security-centre.html'
 cisco_url_security = 'http://tools.cisco.com/security/center/publicationListing.x'
+ossec_url_security = 'http://www.ossec.net/?page_id=134'
 
 # Literals
 news = "news"
@@ -80,7 +81,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("Squid", squid_url_security, "security"),
     ("Arachni", arachni_url, "news"),
     ("Joomla", joomla_url_security, "security"),
-    ("Cisco", cisco_url_security, "security")]
+    ("Cisco", cisco_url_security, "security"),
+    ("OSSEC", ossec_url_security, "security")]
 
 
 data_output = []
@@ -215,6 +217,9 @@ class Software:
         elif (self.name == "Cisco"):
             self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %b %d ").strftime("%d-%m-%Y")
             self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
+        elif (self.name == "OSSEC"):
+        	self.date = datetime.datetime.strptime(soup.find_all('div', attrs={'class': 'entry-meta'})[0].find_all('a')[0].text.strip(), "%B %d, %Y").strftime("%d-%m-%Y")
+        	self.news = soup.find_all('h2', attrs={'class': 'entry-title'})[0].text.strip()
         else:
             self.date = None
             self.news = None
