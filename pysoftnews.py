@@ -47,6 +47,7 @@ openvas_url = 'http://www.openvas.org/news.html'
 zaproxy_url = 'https://www.owasp.org/index.php/Projects/OWASP_Zed_Attack_Proxy_Project/Pages/News'
 rubyonrails_url = 'http://weblog.rubyonrails.org/'
 arachni_url = 'http://www.arachni-scanner.com/blog/'
+nessus_url = 'http://www.tenable.com/media/press-releases'
 
 # Security Advisories
 vmware_url_security = 'https://www.vmware.com/security/advisories'
@@ -82,7 +83,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("Arachni", arachni_url, "news"),
     ("Joomla", joomla_url_security, "security"),
     ("Cisco", cisco_url_security, "security"),
-    ("OSSEC", ossec_url_security, "security")]
+    ("OSSEC", ossec_url_security, "security"),
+    ("Nessus", nessus_url, "news")]
 
 
 data_output = []
@@ -220,6 +222,9 @@ class Software:
         elif (self.name == "OSSEC"):
         	self.date = datetime.datetime.strptime(soup.find_all('div', attrs={'class': 'entry-meta'})[0].find_all('a')[0].text.strip(), "%B %d, %Y").strftime("%d-%m-%Y")
         	self.news = soup.find_all('h2', attrs={'class': 'entry-title'})[0].text.strip()
+        elif (self.name == "Nessus"):
+        	self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
+        	self.news = soup.find_all('h5')[0].text.strip()
         else:
             self.date = None
             self.news = None
