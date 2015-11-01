@@ -48,6 +48,7 @@ zaproxy_url = 'https://www.owasp.org/index.php/Projects/OWASP_Zed_Attack_Proxy_P
 rubyonrails_url = 'http://weblog.rubyonrails.org/'
 arachni_url = 'http://www.arachni-scanner.com/blog/'
 nessus_url = 'http://www.tenable.com/media/press-releases'
+F5_url = 'https://support.f5.com/kb/en-us.html'
 
 # Security Advisories
 vmware_url_security = 'https://www.vmware.com/security/advisories'
@@ -66,17 +67,28 @@ news = "news"
 
 # Add more!!
 
-data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
-    ("Nginx", nginx_url, "news"), ("OpenSSL", openssl_url, "news"),
-    ("Tomcat", tomcat_url, "news"), ("Wordpress", wordpress_url, "news"),
-    ("Drupal", drupal_url, "news"), ("Django", django_url, "news"),
-    ("PHPMyAdmin", phpmyadmin_url, "news"), ("PrimeFaces", primefaces_url, "news"),
-    ("ProFTPD", proftpd_url, "news"), ("Moodle", moodle_url, "news"),
-    ("MySQL", mysql_url, "news"), ("MariaDB", mariadb_url, "news"),
-    ("OpenSSH", openssh_url, "news"), ("MediaWiki", mediawiki_url, "news"),
-    ("Zaproxy", zaproxy_url, "news"), ("OpenVAS", openvas_url, "news"),
-    ("Ruby on rails", rubyonrails_url, "news"), ("MongoDB", mongodb_url, "news"),
-    ("Postgresql", postgresql_url, "news"), ("Joomla", joomla_url, "news"),
+data = [("Apache", apache_url, "news"),
+    ("PHP", php_url, "news"),
+    ("Nginx", nginx_url, "news"),
+    ("OpenSSL", openssl_url, "news"),
+    ("Tomcat", tomcat_url, "news"),
+    ("Wordpress", wordpress_url, "news"),
+    ("Drupal", drupal_url, "news"),
+    ("Django", django_url, "news"),
+    ("PHPMyAdmin", phpmyadmin_url, "news"),
+    ("PrimeFaces", primefaces_url, "news"),
+    ("ProFTPD", proftpd_url, "news"),
+    ("Moodle", moodle_url, "news"),
+    ("MySQL", mysql_url, "news"),
+    ("MariaDB", mariadb_url, "news"),
+    ("OpenSSH", openssh_url, "news"),
+    ("MediaWiki", mediawiki_url, "news"),
+    ("Zaproxy", zaproxy_url, "news"),
+    ("OpenVAS", openvas_url, "news"),
+    ("Ruby on rails", rubyonrails_url, "news"),
+    ("MongoDB", mongodb_url, "news"),
+    ("Postgresql", postgresql_url, "news"),
+    ("Joomla", joomla_url, "news"),
     ("VMWare", vmware_url_security, "security"),
     ("Drupal", drupal_url_security, "security"),
     ("Squid", squid_url_security, "security"),
@@ -84,7 +96,8 @@ data = [("Apache", apache_url, "news"), ("PHP", php_url, "news"),
     ("Joomla", joomla_url_security, "security"),
     ("Cisco", cisco_url_security, "security"),
     ("OSSEC", ossec_url_security, "security"),
-    ("Nessus", nessus_url, "news")]
+    ("Nessus", nessus_url, "news"),
+    ("F5", F5_url, "news")]
 
 
 data_output = []
@@ -220,11 +233,14 @@ class Software:
             self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %b %d ").strftime("%d-%m-%Y")
             self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
         elif (self.name == "OSSEC"):
-        	self.date = datetime.datetime.strptime(soup.find_all('div', attrs={'class': 'entry-meta'})[0].find_all('a')[0].text.strip(), "%B %d, %Y").strftime("%d-%m-%Y")
-        	self.news = soup.find_all('h2', attrs={'class': 'entry-title'})[0].text.strip()
+            self.date = datetime.datetime.strptime(soup.find_all('div', attrs={'class': 'entry-meta'})[0].find_all('a')[0].text.strip(), "%B %d, %Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all('h2', attrs={'class': 'entry-title'})[0].text.strip()
         elif (self.name == "Nessus"):
-        	self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
-        	self.news = soup.find_all('h5')[0].text.strip()
+            self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all('h5')[0].text.strip()
+        elif (self.name == "F5"):
+            self.date = datetime.datetime.strptime(soup.find_all('td', attrs={'class': 'date'})[0].text.strip(), "%m/%d/%Y").strftime("%d-%m-%Y")
+            self.news = soup.find_all('td', attrs={'class': 'description'})[0].text.strip()
         else:
             self.date = None
             self.news = None
