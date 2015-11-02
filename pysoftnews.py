@@ -149,7 +149,7 @@ class Software:
             self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','')
         elif (self.name == 'Drupal'):
             self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div',attrs={'class':'content'})[2].a.text
+            self.news = soup.find_all('div',attrs={'class':'content'})[3].a.text
         elif (self.name == 'Nginx'):
             self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
             self.news = soup.find_all('td')[1].text.replace('\n',' ')
