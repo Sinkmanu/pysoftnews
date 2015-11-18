@@ -138,112 +138,115 @@ class Software:
             requests.packages.urllib3.disable_warnings()
             r = requests.get(self.url, verify=False, headers=user_agent)
             soup = BeautifulSoup(r.text, "html5lib")
+
+            if (self.name == 'Apache'):
+                self.date = datetime.datetime.strptime(soup.find_all('div')[2].find_all('h1')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y").encode('utf-8')
+                self.news = soup.find_all('div')[2].find_all('h1')[1].text.replace(soup.find_all('div')[2].find_all('h1')[1].span.text, "").encode('utf-8')
+            elif (self.name == 'Tomcat'):
+                self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y")
+                self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','')
+            elif (self.name == 'Drupal'):
+                self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('div',attrs={'class':'content'})[3].a.text
+            elif (self.name == 'Nginx'):
+                self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
+                self.news = soup.find_all('td')[1].text.replace('\n',' ')
+            elif (self.name == 'PHP'):
+                self.date = datetime.datetime.strptime(soup.find_all('time')[0].text,"%d %b %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('article')[0].find('h2').text.replace('\n','')
+            elif (self.name == 'Wordpress'):
+                self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'meta'})[0].text.split('by')[0].replace('Posted ',''),"%B %d, %Y ").strftime("%d-%m-%Y")
+                self.news = soup.find_all('h2',attrs={'class':'fancy'})[0].text
+            elif (self.name == 'ProFTPD'):
+                self.date = datetime.datetime.strptime(soup.find_all('div',id="content")[0].find_all('i')[0].text,"%d/%B/%Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('div',id="content")[0].find_all('h1')[0].text
+            elif (self.name == 'OpenSSL'):
+                self.date = datetime.datetime.strptime(soup.find_all('table')[0].find_all('tr')[1].td.text,"%d-%b-%Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('table')[0].find_all('tr')[1].find_all('td')[1].text.strip()
+            elif (self.name == 'Moodle'):
+                self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'author-date'})[0].text,"%A, %d %B %Y, %I:%M %p").strftime("%d-%m-%Y")
+                self.news = soup.find_all('div',attrs={'class':'subject'})[0].text
+            elif (self.name == 'Django'):
+                self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].span.text.split('on')[1].strip(),"%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = (soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].h2.text).strip()
+            elif (self.name == 'PHPMyAdmin'):
+                self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'hentry'})[0].find('p',attrs={'class':'date'}).text,"%Y-%m-%d").strftime("%d-%m-%Y")
+                self.news = soup.find_all('div',attrs={'class':'hentry'})[0].h2.text.strip()
+            elif (self.name == 'PrimeFaces'):
+                self.date = str(datetime.datetime.strptime(soup.find_all('span',attrs={'class':'entry-date'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y"))
+                self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
+            elif (self.name == 'Postgresql'):
+                date_month =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(" ")[2]
+                if (date_month == 'Sept.'):
+                    self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(".")[1]," %d, %Y").replace(month = 9).strftime("%d-%m-%Y")
+                else:
+                    self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
+                self.news =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('h2')[0].text.strip()
+            elif (self.name == 'MySQL'):
+                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'page'}).find_all('p')[0].span.text,"%d %B %Y").strftime("%d-%m-%Y")
+                self.news = soup.find('div',attrs={'id':'page'}).find_all('h3')[0].text.strip()
+            elif (self.name == 'MariaDB'):
+                self.date = datetime.datetime.strptime(soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].small.text.strip(),"%d %b %Y").strftime("%d-%m-%Y")
+                self.news = soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].a.text.encode('utf-8').strip()
+            elif (self.name == 'MongoDB'):
+                self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'press-item-date'})[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('div',attrs={'class':'press-item'})[0].a.text.strip()
+            elif (self.name == 'elasticsearch'):
+                self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].span.text,"%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].a.text.split("-")[0]
+            elif (self.name == 'OpenSSH'):
+                self.date = datetime.datetime.strptime(soup.find_all('li')[0].strong.text,"%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('li')[0].br.next_sibling.strip()
+            elif (self.name == 'MediaWiki'):
+                self.date = datetime.datetime.strptime(soup.find_all('dl')[0].text.strip(),"%Y-%m-%d").strftime("%d-%m-%Y")
+                self.news = soup.find_all('ul')[1].text.strip()
+            elif (self.name == 'OpenVAS'):
+                aux = soup.find_all('div',attrs={'class':'content'})[0].h3.text.split("-")[0]
+                aux_re = re.sub(r"\b([0123]?[0-9])(st|th|nd|rd)\b",r"\1",aux)
+                self.date = datetime.datetime.strptime(aux_re,"%B %d, %Y ").strftime("%d-%m-%Y")
+                self.news = " ".join(soup.find_all('div',attrs={'class':'content'})[0].h3.text.split("-")[1:])
+            elif (self.name == 'Zaproxy'):
+                self.date = datetime.datetime.strptime(soup.find_all('li')[0].text.strip().split(" ")[0],"%Y/%m/%d").strftime("%d-%m-%Y")
+                self.news = " ".join(soup.find_all('li')[0].text.strip().split(" ")[1:])
+            elif (self.name == 'Ruby on rails'):
+                self.date = datetime.datetime.strptime(soup.find_all('span',attrs={'class':'published'})[0].get('title'),"%Y-%m-%d %X +0000").strftime("%d-%m-%Y")
+                self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
+            elif (self.name == "Joomla"):
+                if (self.type == 'security'):
+                    self.date = datetime.datetime.strptime(soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().split('-')[0],"[%Y%m%d] ").strftime("%d-%m-%Y")
+                    self.news = soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip()[soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().index('-')+2:]
+                else:
+                    self.date = datetime.datetime.strptime(soup.find_all('time',attrs={'itemprop':'dateCreated'})[0].get('datetime').split('T')[0],'%Y-%m-%d').strftime("%d-%m-%Y")
+                    self.news = soup.find_all('h2',attrs={'itemprop':'name'})[0].a.text.strip()
+            elif (self.name == "VMWare"):
+                self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('p', attrs={'class':'mr-b10 c-body'})[0].text.strip()
+            elif (self.name == "Squid"):
+                self.date = datetime.datetime.strptime(" ".join(soup.find_all("dt")[0].text.split(",")[1:]), " %b %d  %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all("dd")[0].text.strip()
+            elif (self.name == "Arachni"):
+                self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('a', attrs={'rel':'bookmark'})[0].text
+            elif (self.name == "Cisco"):
+                self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %b %d ").strftime("%d-%m-%Y")
+                self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
+            elif (self.name == "OSSEC"):
+                self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y").encode('utf-8')
+                self.news = soup.find_all('h5')[0].text.encode('utf-8').strip()
+            elif (self.name == "Nessus"):
+                self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('h5')[0].text.strip()
+            elif (self.name == "F5"):
+                self.date = datetime.datetime.strptime(soup.find_all('td', attrs={'class': 'date'})[0].text.strip(), "%m/%d/%Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('td', attrs={'class': 'description'})[0].text.strip()
+            else:
+                self.date = None
+                self.news = "ERROR"
+        except IndexError:
+                self.date = None
+                self.news = None
         except requests.InsecureRequestWarning:
             pass
-
-        if (self.name == 'Apache'):
-            self.date = datetime.datetime.strptime(soup.find_all('div')[2].find_all('h1')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y").encode('utf-8')
-            self.news = soup.find_all('div')[2].find_all('h1')[1].text.replace(soup.find_all('div')[2].find_all('h1')[1].span.text, "").encode('utf-8')
-        elif (self.name == 'Tomcat'):
-            self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y")
-            self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','')
-        elif (self.name == 'Drupal'):
-            self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div',attrs={'class':'content'})[3].a.text
-        elif (self.name == 'Nginx'):
-            self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
-            self.news = soup.find_all('td')[1].text.replace('\n',' ')
-        elif (self.name == 'PHP'):
-            self.date = datetime.datetime.strptime(soup.find_all('time')[0].text,"%d %b %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('article')[0].find('h2').text.replace('\n','')
-        elif (self.name == 'Wordpress'):
-            self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'meta'})[0].text.split('by')[0].replace('Posted ',''),"%B %d, %Y ").strftime("%d-%m-%Y")
-            self.news = soup.find_all('h2',attrs={'class':'fancy'})[0].text
-        elif (self.name == 'ProFTPD'):
-            self.date = datetime.datetime.strptime(soup.find_all('div',id="content")[0].find_all('i')[0].text,"%d/%B/%Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div',id="content")[0].find_all('h1')[0].text
-        elif (self.name == 'OpenSSL'):
-            self.date = datetime.datetime.strptime(soup.find_all('table')[0].find_all('tr')[1].td.text,"%d-%b-%Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('table')[0].find_all('tr')[1].find_all('td')[1].text.strip()
-        elif (self.name == 'Moodle'):
-            self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'author-date'})[0].text,"%A, %d %B %Y, %I:%M %p").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div',attrs={'class':'subject'})[0].text
-        elif (self.name == 'Django'):
-            self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].span.text.split('on')[1].strip(),"%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = (soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].h2.text).strip()
-        elif (self.name == 'PHPMyAdmin'):
-            self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'hentry'})[0].find('p',attrs={'class':'date'}).text,"%Y-%m-%d").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div',attrs={'class':'hentry'})[0].h2.text.strip()
-        elif (self.name == 'PrimeFaces'):
-            self.date = str(datetime.datetime.strptime(soup.find_all('span',attrs={'class':'entry-date'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y"))
-            self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
-        elif (self.name == 'Postgresql'):
-            date_month =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(" ")[2]
-            if (date_month == 'Sept.'):
-                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(".")[1]," %d, %Y").replace(month = 9).strftime("%d-%m-%Y")
-            else:
-                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
-            self.news =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('h2')[0].text.strip()
-        elif (self.name == 'MySQL'):
-            self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'page'}).find_all('p')[0].span.text,"%d %B %Y").strftime("%d-%m-%Y")
-            self.news = soup.find('div',attrs={'id':'page'}).find_all('h3')[0].text.strip()
-        elif (self.name == 'MariaDB'):
-            self.date = datetime.datetime.strptime(soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].small.text.strip(),"%d %b %Y").strftime("%d-%m-%Y")
-            self.news = soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].a.text..encode('utf-8').strip()
-        elif (self.name == 'MongoDB'):
-            self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'press-item-date'})[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('div',attrs={'class':'press-item'})[0].a.text.strip()
-        elif (self.name == 'elasticsearch'):
-            self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].span.text,"%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].a.text.split("-")[0]
-        elif (self.name == 'OpenSSH'):
-            self.date = datetime.datetime.strptime(soup.find_all('li')[0].strong.text,"%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('li')[0].br.next_sibling.strip()
-        elif (self.name == 'MediaWiki'):
-            self.date = datetime.datetime.strptime(soup.find_all('dl')[0].text.strip(),"%Y-%m-%d").strftime("%d-%m-%Y")
-            self.news = soup.find_all('ul')[1].text.strip()
-        elif (self.name == 'OpenVAS'):
-            aux = soup.find_all('div',attrs={'class':'content'})[0].h3.text.split("-")[0]
-            aux_re = re.sub(r"\b([0123]?[0-9])(st|th|nd|rd)\b",r"\1",aux)
-            self.date = datetime.datetime.strptime(aux_re,"%B %d, %Y ").strftime("%d-%m-%Y")
-            self.news = " ".join(soup.find_all('div',attrs={'class':'content'})[0].h3.text.split("-")[1:])
-        elif (self.name == 'Zaproxy'):
-            self.date = datetime.datetime.strptime(soup.find_all('li')[0].text.strip().split(" ")[0],"%Y/%m/%d").strftime("%d-%m-%Y")
-            self.news = " ".join(soup.find_all('li')[0].text.strip().split(" ")[1:])
-        elif (self.name == 'Ruby on rails'):
-            self.date = datetime.datetime.strptime(soup.find_all('span',attrs={'class':'published'})[0].get('title'),"%Y-%m-%d %X +0000").strftime("%d-%m-%Y")
-            self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip()
-        elif (self.name == "Joomla"):
-            if (self.type == 'security'):
-                self.date = datetime.datetime.strptime(soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().split('-')[0],"[%Y%m%d] ").strftime("%d-%m-%Y")
-                self.news = soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip()[soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().index('-')+2:]
-            else:
-                self.date = datetime.datetime.strptime(soup.find_all('time',attrs={'itemprop':'dateCreated'})[0].get('datetime').split('T')[0],'%Y-%m-%d').strftime("%d-%m-%Y")
-                self.news = soup.find_all('h2',attrs={'itemprop':'name'})[0].a.text.strip()
-        elif (self.name == "VMWare"):
-            self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('p', attrs={'class':'mr-b10 c-body'})[0].text.strip()
-        elif (self.name == "Squid"):
-            self.date = datetime.datetime.strptime(" ".join(soup.find_all("dt")[0].text.split(",")[1:]), " %b %d  %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all("dd")[0].text.strip()
-        elif (self.name == "Arachni"):
-            self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('a', attrs={'rel':'bookmark'})[0].text
-        elif (self.name == "Cisco"):
-            self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %b %d ").strftime("%d-%m-%Y")
-            self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
-        elif (self.name == "OSSEC"):
-            self.date = datetime.datetime.strptime(soup.find_all('div', attrs={'class': 'entry-meta'})[0].find_all('a')[0].text.strip(), "%B %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('h2', attrs={'class': 'entry-title'})[0].text.strip()
-        elif (self.name == "Nessus"):
-            self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('h5')[0].text.strip()
-        elif (self.name == "F5"):
-            self.date = datetime.datetime.strptime(soup.find_all('td', attrs={'class': 'date'})[0].text.strip(), "%m/%d/%Y").strftime("%d-%m-%Y")
-            self.news = soup.find_all('td', attrs={'class': 'description'})[0].text.strip()
-        else:
-            self.date = None
-            self.news = None
 
     def __repr__(self):
         return repr((self.name, self.date, self.url, self.news))
