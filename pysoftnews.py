@@ -189,7 +189,7 @@ class Software:
             self.news = soup.find('div',attrs={'id':'page'}).find_all('h3')[0].text.strip()
         elif (self.name == 'MariaDB'):
             self.date = datetime.datetime.strptime(soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].small.text.strip(),"%d %b %Y").strftime("%d-%m-%Y")
-            self.news = soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].a.text.strip()
+            self.news = soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].a.text..encode('utf-8').strip()
         elif (self.name == 'MongoDB'):
             self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'press-item-date'})[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
             self.news = soup.find_all('div',attrs={'class':'press-item'})[0].a.text.strip()
