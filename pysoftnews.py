@@ -231,8 +231,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[3].text.strip().split('\n\t')[0], "%Y %b %d ").strftime("%d-%m-%Y")
                 self.news = soup.find_all('tr', attrs={'class': 'apps-table-data'})[0].find_all('td')[0].text.strip().split("\n\t")[0]
             elif (self.name == "OSSEC"):
-                self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y").encode('utf-8')
-                self.news = soup.find_all('h5')[0].text.encode('utf-8').strip()
+                self.date = datetime.datetime.strptime(soup.find_all('ul', attrs={'class':'ablog-archive'})[0].find_all('li')[0].text.strip(),"%b %d, %Y").strftime("%d-%m-%Y").encode('utf-8')
+                self.news = soup.find_all('h2')[0].text.encode('utf-8').strip()
             elif (self.name == "Nessus"):
                 self.date = datetime.datetime.strptime(soup.find_all('em')[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all('h5')[0].text.strip()
@@ -240,11 +240,11 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('td', attrs={'class': 'date'})[0].text.strip(), "%m/%d/%Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all('td', attrs={'class': 'description'})[0].text.strip()
             else:
-                self.date = None
+                self.date = "01-01-1970"
                 self.news = "ERROR"
         except IndexError:
-                self.date = None
-                self.news = None
+                self.date = "01-01-1970"
+                self.news = "ERROR"
         except requests.InsecureRequestWarning:
             pass
 
