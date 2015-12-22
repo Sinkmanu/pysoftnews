@@ -38,7 +38,7 @@ phpmyadmin_url = 'http://www.phpmyadmin.net/home_page/news.php'
 primefaces_url = 'http://blog.primefaces.org/'
 postgresql_url = 'http://www.postgresql.org/about/newsarchive/'
 mysql_url = 'http://www.mysql.com/news-and-events/'
-mariadb_url = 'https://mariadb.org/'
+mariadb_url = 'https://mariadb.org/blog'
 mongodb_url = 'https://www.mongodb.com/press'
 elasticsearch_url = 'https://www.elastic.co/blog'
 openssh_url = 'http://www.openssh.com/security.html'
@@ -186,8 +186,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'page'}).find_all('p')[0].span.text,"%d %B %Y").strftime("%d-%m-%Y")
                 self.news = soup.find('div',attrs={'id':'page'}).find_all('h3')[0].text.strip()
             elif (self.name == 'MariaDB'):
-                self.date = datetime.datetime.strptime(soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].small.text.strip(),"%d %b %Y").strftime("%d-%m-%Y")
-                self.news = soup.find('div',attrs={'class':'well recent_blog_posts'}).find_all('h4')[0].a.text.encode('utf-8').strip()
+                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'recent-posts-4'}).find_all('span')[0].text.strip(),"%Y-%m-%d").strftime("%d-%m-%Y")
+                self.news = soup.find('div',attrs={'id':'recent-posts-4'}).find_all('a')[0].text.encode('utf-8').strip()
             elif (self.name == 'MongoDB'):
                 self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'press-item-date'})[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all('div',attrs={'class':'press-item'})[0].a.text.strip()
@@ -242,11 +242,10 @@ class Software:
             else:
                 self.date = "01-01-1970"
                 self.news = "ERROR"
-        except IndexError:
+        except:
                 self.date = "01-01-1970"
                 self.news = "ERROR"
-        except requests.InsecureRequestWarning:
-            pass
+
 
     def __repr__(self):
         return repr((self.name, self.date, self.url, self.news))
