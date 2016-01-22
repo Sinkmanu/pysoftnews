@@ -146,8 +146,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','').encode('utf-8')
             elif (self.name == 'Drupal'):
-                self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
-                self.news = soup.find_all('div',attrs={'class':'content'})[3].a.text.encode('utf-8')
+                self.date = datetime.datetime.strptime(soup.find_all('time')[1].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('div',attrs={'class':'block-inner'})[2].find_all('h2')[1].text.encode('utf-8')
             elif (self.name == 'Nginx'):
                 self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('td')[1].text.replace('\n',' ').encode('utf-8')
@@ -167,7 +167,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'author-date'})[0].text,"%A, %d %B %Y, %I:%M %p").strftime("%d-%m-%Y")
                 self.news = soup.find_all('div',attrs={'class':'subject'})[0].text.encode('utf-8')
             elif (self.name == 'Django'):
-                self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].span.text.split('on')[1].strip(),"%B %d, %Y").strftime("%d-%m-%Y")
+                creatorDate =  soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].span.text.split('on')
+                self.date = datetime.datetime.strptime(creatorDate[len(creatorDate)-1].strip(),"%B %d, %Y").strftime("%d-%m-%Y")
                 self.news = (soup.find('ul',attrs={'class':'list-news'}).find_all('li')[0].h2.text).strip().encode('utf-8')
             elif (self.name == 'PHPMyAdmin'):
                 self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'hentry'})[0].find('p',attrs={'class':'date'}).text,"%Y-%m-%d").strftime("%d-%m-%Y")
@@ -242,7 +243,7 @@ class Software:
             else:
                 self.date = "01-01-1970"
                 self.news = "ERROR"
-        except:
+        except Exception as e:
                 self.date = "01-01-1970"
                 self.news = "ERROR"
 
