@@ -106,12 +106,13 @@ data_output = []
 XML = "xml"
 
 class Software:
-    def __init__(self, name, url, type_news):
+    def __init__(self, name, url, type_news, mode):
         self.name = name
         self.news = ""
         self.url = url
         self.date = ""
         self.type = type_news
+        self.mode = mode
 
     def getName(self):
         ''' Return the sanitized name'''
@@ -158,7 +159,7 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'meta'})[0].text.split('by')[0].replace('Posted ',''),"%B %d, %Y ").strftime("%d-%m-%Y")
                 self.news = soup.find_all('h2',attrs={'class':'fancy'})[0].text.encode('utf-8')
             elif (self.name == 'ProFTPD'):
-                self.date = datetime.datetime.strptime(soup.find_all('div',id="content")[0].find_all('i')[0].text,"%d/%B/%Y").strftime("%d-%m-%Y")
+                self.date = datetime.datetime.strptime(soup.find_all('div',id="content")[0].find_all('i')[0].text,"%d/%b/%Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all('div',id="content")[0].find_all('h1')[0].text.encode('utf-8')
             elif (self.name == 'OpenSSL'):
                 self.date = datetime.datetime.strptime(soup.find_all('table')[0].find_all('tr')[1].td.text,"%d-%b-%Y").strftime("%d-%m-%Y")
@@ -223,7 +224,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all('p', attrs={'class':'mr-b10 c-body'})[0].text.strip().encode('utf-8')
             elif (self.name == "Squid"):
-                self.date = datetime.datetime.strptime(" ".join(soup.find_all("dt")[0].text.split(",")[1:]), " %b %d  %Y").strftime("%d-%m-%Y")
+                datetuple = " ".join(soup.find_all("dt")[0].text.split(",")[1:]).rsplit(" ",4)[-4:]
+                self.date = datetime.datetime.strptime(" ".join(datetuple), "%b %d  %Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all("dd")[0].text.strip().encode('utf-8')
             elif (self.name == "Arachni"):
                 self.date = datetime.datetime.strptime(soup.find_all('span', attrs={'class':'entry-date'})[0].text, "%B %d, %Y").strftime("%d-%m-%Y")
@@ -244,6 +246,9 @@ class Software:
                 self.date = "01-01-1970"
                 self.news = "ERROR"
         except Exception as e:
+                if (self.mode is not None):
+                    #Debug mode
+                    print("[ERR] %s"%str(e))
                 self.date = "01-01-1970"
                 self.news = "ERROR"
 
@@ -262,6 +267,8 @@ def opciones():
         # TODO: Add parameter to filter by a date range
         parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", help="Verbose")
+        parser.add_option("-d", "--debug",
+                  action="store_true", dest="debug", help="Debug")
         parser.add_option("-A", "--all",
                   action="store_true", dest="all", help="All software")
         parser.add_option("-t", "--type",
@@ -284,15 +291,15 @@ def opciones():
                             print("[/] %s" % i[0])
                         # check news type (news or security)
                         if (options.type == 'security') and (i[2] == "security"):
-                            software_aux = Software(i[0], i[1], i[2])
+                            software_aux = Software(i[0], i[1], i[2], options.debug)
                             software_aux.getData()
                             data_output.append(software_aux)
                         elif (options.type == "news") and (i[2] == "news"):
-                            software_aux = Software(i[0], i[1], i[2])
+                            software_aux = Software(i[0], i[1], i[2], options.debug)
                             software_aux.getData()
                             data_output.append(software_aux)
                         elif (options.type is None):
-                            software_aux = Software(i[0], i[1], i[2])
+                            software_aux = Software(i[0], i[1], i[2], options.debug)
                             software_aux.getData()
                             data_output.append(software_aux)
                     if (options.format == XML):
@@ -306,7 +313,7 @@ def opciones():
             if (options.output is not None):
                 if (options.format is not None):
                     for name in options.name.split(","):
-                        addList(name.strip())
+                        addList(name.strip(), options.debug)
                     if (options.format == XML):
                         printXML(data_output, options.output)
                 else:
@@ -314,9 +321,9 @@ def opciones():
             else:
                 if (len(options.name.split(",")) > 0):
                     for name in options.name.split(","):
-                        printNormal(name.strip(), options.type)
+                        printNormal(name.strip(), options.type, options.debug)
                 else:
-                    printNormal(options.name, options.type)
+                    printNormal(options.name, options.type, options.debug)
         else:
             print("[-] Fail: All or name parameter")
 
@@ -338,11 +345,11 @@ def getURL(name2find, type_news=news):
         return None
 
 
-def printNormal(name2find, type_news=news):
+def printNormal(name2find, type_news, mode):
     try:
         (name, url, type_news) = getURL(name2find, type_news)
         if url is not None:
-            software = Software(name, url, type_news)
+            software = Software(name, url, type_news, mode)
             software.getData()
             print(software)
         else:
@@ -351,12 +358,12 @@ def printNormal(name2find, type_news=news):
         print("[-] Name %s Not found." % name2find)
 
 
-def addList(name2find):
+def addList(name2find, mode):
     '''Add data info to the global list'''
     try:
         (name, url, type_news) = getURL(name2find)
         if url is not None:
-            software = Software(name, url, type_news)
+            software = Software(name, url, type_news, mode)
             software.getData()
             data_output.append(software)
     except TypeError:
@@ -368,19 +375,19 @@ def printJSON(filename):
     return None
 
 
-def printAll(type_news):
+def printAll(type_news, mode):
     '''Print all list'''
     for i in data:
         if (type_news == "security") and (i[2] == "security"):
-            software = Software(i[0], i[1], i[2])
+            software = Software(i[0], i[1], i[2], mode)
             software.getData()
             print(software)
         elif (type_news == "news") and (i[2] == "news"):
-            software = Software(i[0], i[1], i[2])
+            software = Software(i[0], i[1], i[2], mode)
             software.getData()
             print(software)
         elif (type_news is None):
-            software = Software(i[0], i[1], i[2])
+            software = Software(i[0], i[1], i[2], mode)
             software.getData()
             print(software)
 
