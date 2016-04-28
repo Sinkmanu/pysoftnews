@@ -178,11 +178,7 @@ class Software:
                 self.date = str(datetime.datetime.strptime(soup.find_all('span',attrs={'class':'entry-date'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y"))
                 self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip().encode('utf-8')
             elif (self.name == 'Postgresql'):
-                date_month =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(" ")[2]
-                if (date_month == 'Sept.'):
-                    self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text.split(".")[1]," %d, %Y").replace(month = 9).strftime("%d-%m-%Y")
-                else:
-                    self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %b. %d, %Y").strftime("%d-%m-%Y")
+                self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %Y-%m-%d").strftime("%d-%m-%Y")
                 self.news =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('h2')[0].text.strip().encode('utf-8')
             elif (self.name == 'MySQL'):
                 self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'page'}).find_all('p')[0].span.text,"%d %B %Y").strftime("%d-%m-%Y")
