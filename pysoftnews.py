@@ -148,7 +148,7 @@ class Software:
                 self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','').encode('utf-8')
             elif (self.name == 'Drupal'):
                 self.date = datetime.datetime.strptime(soup.find_all('time')[1].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
-                self.news = soup.find_all('div',attrs={'class':'block-inner'})[2].find_all('h2')[1].text.encode('utf-8')
+                self.news = soup.find_all('div',attrs={'class':'block-inner'})[3].find_all('h2')[0].text.encode('utf-8')
             elif (self.name == 'Nginx'):
                 self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('td')[1].text.replace('\n',' ').encode('utf-8')
@@ -187,8 +187,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'recent-posts-4'}).find_all('span')[0].text.strip(),"%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find('div',attrs={'id':'recent-posts-4'}).find_all('a')[0].text.encode('utf-8').strip()
             elif (self.name == 'MongoDB'):
-                self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'press-item-date'})[0].text,"%b %d, %Y").strftime("%d-%m-%Y")
-                self.news = soup.find_all('div',attrs={'class':'press-item'})[0].a.text.strip().encode('utf-8')
+                self.date = datetime.datetime.strptime(soup.find_all('p',attrs={'class':'font--light-green'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y")
+                self.news = soup.find_all('p',attrs={'class':'margin--top-none'})[0].text.strip().encode('utf-8')
             elif (self.name == 'elasticsearch'):
                 self.date = datetime.datetime.strptime(soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].span.text,"%B %d, %Y").strftime("%d-%m-%Y")
                 self.news = soup.find('ul',attrs={'class':'blog-details'}).find_all('li')[0].a.text.split("-")[0].encode('utf-8')
