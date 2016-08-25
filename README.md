@@ -22,6 +22,7 @@ Example: ./pysoftnews.py -n drupal,django
 Options:
   -h, --help            show this help message and exit
   -v, --verbose         Verbose
+  -d, --debug           Debug
   -A, --all             All software
   -t TYPE, --type=TYPE  News type (news, security)
   -f FORMAT, --format=FORMAT
