@@ -148,7 +148,10 @@ class Software:
                 self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','').encode('utf-8')
             elif (self.name == 'Drupal'):
                 self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
-                self.news = soup.find_all('div',attrs={'class':'content'})[4].find_all('h2')[0].text.encode('utf-8')
+		if (self.type == 'security'):
+			self.news = soup.find_all('div',attrs={'class':'view-content'})[0].find_all('h2')[0].text.encode('utf-8')
+		else:
+			self.news = soup.find_all('div',attrs={'class':'content'})[3].find_all('h2')[0].text.encode('utf-8')
             elif (self.name == 'Nginx'):
                 self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('td')[1].text.replace('\n',' ').encode('utf-8')
@@ -175,8 +178,8 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('div',attrs={'class':'hentry'})[0].find('p',attrs={'class':'date'}).text,"%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('div',attrs={'class':'hentry'})[0].h2.text.strip().encode('utf-8')
             elif (self.name == 'PrimeFaces'):
-                self.date = str(datetime.datetime.strptime(soup.find_all('span',attrs={'class':'entry-date'})[0].text,"%B %d, %Y").strftime("%d-%m-%Y"))
-                self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip().encode('utf-8')
+                self.date = str(datetime.datetime.strptime(soup.find_all('div',attrs={'class':'entry-meta'})[0].a.text,"%B %d, %Y").strftime("%d-%m-%Y"))
+                self.news = soup.find_all('h1',attrs={'class':'entry-title'})[0].text.strip().encode('utf-8')
             elif (self.name == 'Postgresql'):
                 self.date = datetime.datetime.strptime(soup.find('div',attrs={'id':'pgContentWrap'}).find_all('div')[0].text,"Posted on %Y-%m-%d").strftime("%d-%m-%Y")
                 self.news =  soup.find('div',attrs={'id':'pgContentWrap'}).find_all('h2')[0].text.strip().encode('utf-8')
