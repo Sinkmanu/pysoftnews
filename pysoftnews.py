@@ -151,7 +151,7 @@ class Software:
 		if (self.type == 'security'):
 			self.news = soup.find_all('div',attrs={'class':'view-content'})[0].find_all('h2')[0].text.encode('utf-8')
 		else:
-			self.news = soup.find_all('div',attrs={'class':'content'})[3].find_all('h2')[0].text.encode('utf-8')
+			self.news = soup.find_all('div',attrs={'class':'view-content'})[0].find_all("h2")[0].text.encode("utf-8")
             elif (self.name == 'Nginx'):
                 self.date = datetime.datetime.strptime(soup.find_all('td',attrs={'class':'date'})[0].text,"%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('td')[1].text.replace('\n',' ').encode('utf-8')
@@ -211,7 +211,7 @@ class Software:
                 self.news = " ".join(soup.find_all('li')[0].text.strip().split(" ")[1:]).encode('utf-8')
             elif (self.name == 'Ruby on rails'):
                 self.date = datetime.datetime.strptime(soup.find_all('span',attrs={'class':'published'})[0].get('title'),"%Y-%m-%d %X +0000").strftime("%d-%m-%Y")
-                self.news = soup.find_all('h2',attrs={'class':'entry-title'})[0].text.strip().encode('utf-8')
+                self.news = soup.find_all('h2')[0].text.strip().encode('utf-8')
             elif (self.name == "Joomla"):
                 if (self.type == 'security'):
                     self.date = datetime.datetime.strptime(soup.find_all('h2', attrs={'itemprop' :'name'})[0].text.strip().split('-')[0],"[%Y%m%d] ").strftime("%d-%m-%Y")
