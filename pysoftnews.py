@@ -57,6 +57,7 @@ squid_url_security = 'http://www.squid-cache.org/Advisories/'
 joomla_url_security = 'http://developer.joomla.org/security-centre.html'
 cisco_url_security = 'http://tools.cisco.com/security/center/publicationListing.x'
 ossec_url_security = 'http://www.ossec.net/?page_id=134'
+owncloud_url_security = 'https://owncloud.org/wp-content/themes/owncloudorgnew/advisories/advisories.rss'
 
 # Literals
 news = "news"
@@ -97,7 +98,8 @@ data = [("Apache", apache_url, "news"),
     ("Cisco", cisco_url_security, "security"),
     ("OSSEC", ossec_url_security, "security"),
     ("Nessus", nessus_url, "news"),
-    ("F5", F5_url, "news")]
+    ("F5", F5_url, "news"),
+    ("Owncloud", owncloud_url_security, "security")]
 
 
 data_output = []
@@ -147,7 +149,7 @@ class Software:
                 self.date = datetime.datetime.strptime(soup.find_all('h3')[1].span.text, "%Y-%m-%d").strftime("%d-%m-%Y")
                 self.news = soup.find_all('h3')[1].text.replace(soup.find_all('h3')[1].span.text,"").replace('\n','').encode('utf-8')
             elif (self.name == 'Drupal'):
-                self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%B %d, %Y").strftime("%d-%m-%Y")
+                self.date = datetime.datetime.strptime(soup.find_all('time')[0].text.split(" at")[0],"%d %B %Y").strftime("%d-%m-%Y")
 		if (self.type == 'security'):
 			self.news = soup.find_all('div',attrs={'class':'view-content'})[0].find_all('h2')[0].text.encode('utf-8')
 		else:
@@ -241,6 +243,9 @@ class Software:
             elif (self.name == "F5"):
                 self.date = datetime.datetime.strptime(soup.find_all('td', attrs={'class': 'date'})[0].text.strip(), "%m/%d/%Y").strftime("%d-%m-%Y")
                 self.news = soup.find_all('td', attrs={'class': 'description'})[0].text.strip().encode('utf-8')
+            elif (self.name == "Owncloud"):
+                self.date = datetime.datetime.strptime(soup.find_all("pubdate")[1].text,"%a, %d %b %Y %H:%M:%S +0100").strftime("%d-%m-%Y")
+                self.news = soup.find_all("title")[1].text.text.strip().encode('utf-8')
             else:
                 self.date = "01-01-1970"
                 self.news = "ERROR"
